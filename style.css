@@ -1,0 +1,1160 @@
+/* =========================
+   CSS
+========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f5f7fb;
+    color: #172554;
+}
+
+a {
+    text-decoration: none;
+}
+
+ul {
+    list-style: none;
+}
+
+section {
+    padding: 70px 6%;
+}
+
+h2 {
+    text-align: center;
+    font-size: 34px;
+    margin-bottom: 35px;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+header {
+    background-color: #172033;
+    color: white;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 18px 5%;
+
+    position: sticky;
+    top: 0;
+
+    z-index: 1000;
+}
+
+
+/* Logo */
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-icon {
+    font-size: 28px;
+}
+
+.logo h1 {
+    font-size: 23px;
+    white-space: nowrap;
+}
+
+
+/* Navigation */
+
+nav ul {
+    display: flex;
+    align-items: center;
+}
+
+nav li {
+    padding: 0 13px;
+    border-right: 1px solid #64748b;
+}
+
+nav li:last-child {
+    border-right: none;
+}
+
+nav a {
+    color: white;
+    font-size: 15px;
+    padding: 7px 2px;
+    display: inline-block;
+    transition: 0.3s;
+}
+
+nav a:hover {
+    color: #38bdf8;
+}
+
+
+/* =========================
+   HERO SECTION
+========================= */
+
+#home {
+    min-height: 620px;
+
+    padding: 0;
+
+    position: relative;
+
+    overflow: hidden;
+
+    background-color: #f8fbff;
+
+    /* Image right side */
+    background-image:
+        linear-gradient(
+            90deg,
+            #f8fbff 0%,
+            #f8fbff 30%,
+            rgba(248, 251, 255, 0.96) 42%,
+            rgba(248, 251, 255, 0.65) 55%,
+            rgba(248, 251, 255, 0.15) 72%,
+            rgba(248, 251, 255, 0) 100%
+        ),
+        url("study-hero.png");
+
+    background-repeat: no-repeat;
+
+    /*
+       Image ko hero ke right side
+       proper size mein rakhega
+    */
+    background-size:
+        cover,
+        72% 100%;
+
+    background-position:
+        center,
+        right center;
+}
+
+
+/* =========================
+   HERO CONTENT
+========================= */
+
+.hero-content {
+    min-height: 620px;
+
+    display: flex;
+
+    align-items: center;
+
+    width: 100%;
+}
+
+
+/* =========================
+   HERO TEXT
+========================= */
+
+.hero-text {
+    width: 52%;
+
+    padding-left: 7%;
+
+    position: relative;
+
+    z-index: 2;
+}
+
+
+/* Small heading */
+
+.hero-tag {
+    color: #64748b;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    letter-spacing: 3px;
+
+    margin-bottom: 18px;
+}
+
+
+/* Main heading */
+
+.hero-text h2 {
+    text-align: left;
+
+    font-size: 56px;
+
+    line-height: 1.08;
+
+    margin-bottom: 25px;
+
+    color: #172554;
+}
+
+.hero-text h2 span {
+    display: block;
+
+    color: #1677e8;
+}
+
+
+/* Description */
+
+.hero-description {
+    max-width: 540px;
+
+    font-size: 18px;
+
+    color: #475569;
+
+    margin-bottom: 30px;
+}
+
+
+/* =========================
+   HERO BUTTON
+========================= */
+
+.hero-button {
+    display: inline-block;
+
+    background-color: #1677e8;
+
+    color: white;
+
+    padding: 15px 28px;
+
+    border-radius: 8px;
+
+    font-weight: bold;
+
+    font-size: 17px;
+
+    transition: 0.3s;
+}
+
+.hero-button:hover {
+    background-color: #075fc7;
+
+    transform: translateY(-2px);
+}
+
+
+/* =========================
+   RESOURCE TYPES
+========================= */
+
+.resource-types {
+    display: flex;
+
+    gap: 35px;
+
+    margin-top: 40px;
+}
+
+.resource-types div {
+    text-align: center;
+}
+
+.resource-types span {
+    font-size: 27px;
+}
+
+.resource-types p {
+    margin-top: 5px;
+
+    font-size: 14px;
+
+    color: #475569;
+}
+
+/* =========================
+   FEATURES
+========================= */
+
+#features {
+    background-color: white;
+
+    padding-top: 45px;
+    padding-bottom: 45px;
+}
+
+.feature-container {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 22px;
+}
+
+.feature-card {
+    background-color: white;
+
+    padding: 28px;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 12px;
+
+    transition: 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+
+    box-shadow:
+        0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.feature-icon {
+    font-size: 30px;
+
+    margin-bottom: 15px;
+}
+
+.feature-card h3 {
+    color: #172554;
+
+    font-size: 20px;
+
+    margin-bottom: 10px;
+}
+
+.feature-card p {
+    color: #64748b;
+}
+
+
+/* =========================
+   SEARCH
+========================= */
+
+#search {
+    background-color: #f5f7fb;
+
+    text-align: center;
+}
+
+#search form {
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+#search label {
+    font-weight: bold;
+}
+
+#search input {
+    width: 420px;
+
+    padding: 13px;
+
+    border: 1px solid #cbd5e1;
+
+    border-radius: 7px;
+
+    font-size: 16px;
+}
+
+button {
+    cursor: pointer;
+
+    border: none;
+
+    font-family: inherit;
+}
+
+#search button {
+    padding: 13px 22px;
+
+    background-color: #1677e8;
+
+    color: white;
+
+    border-radius: 7px;
+}
+
+#search button:hover {
+    background-color: #075fc7;
+}
+
+
+/* =========================
+   DASHBOARD
+========================= */
+
+#dashboard {
+    background-color: white;
+}
+
+.dashboard-container {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 25px;
+
+    max-width: 950px;
+
+    margin: auto;
+}
+
+.dashboard-card {
+    background-color: #f8fafc;
+
+    padding: 30px;
+
+    text-align: center;
+
+    border-radius: 12px;
+
+    border: 1px solid #e2e8f0;
+}
+
+.dashboard-card h3 {
+    font-size: 38px;
+
+    color: #1677e8;
+}
+
+.dashboard-card p {
+    color: #64748b;
+}
+
+
+/* =========================
+   SUBJECTS
+========================= */
+
+#subjects {
+    background-color: #f5f7fb;
+}
+
+.subject-container {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 22px;
+}
+
+.subject-card {
+    background-color: white;
+
+    padding: 28px;
+
+    text-align: center;
+
+    border-radius: 12px;
+
+    border: 1px solid #e2e8f0;
+
+    transition: 0.3s;
+}
+
+.subject-card:hover {
+    transform: translateY(-5px);
+
+    box-shadow:
+        0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.subject-icon {
+    font-size: 38px;
+
+    margin-bottom: 12px;
+}
+
+.subject-card h3 {
+    margin-bottom: 10px;
+}
+
+.subject-card p {
+    color: #64748b;
+
+    margin-bottom: 18px;
+}
+
+.subject-filter {
+    background-color: transparent;
+
+    color: #1677e8;
+
+    font-weight: bold;
+
+    font-size: 15px;
+}
+
+
+/* =========================
+   RESOURCES
+========================= */
+
+#resources {
+    background-color: white;
+}
+
+.resource-filter {
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 35px;
+}
+
+.resource-filter button,
+.resource-filter select {
+    padding: 10px 15px;
+
+    border: 1px solid #cbd5e1;
+
+    border-radius: 7px;
+
+    background-color: white;
+
+    cursor: pointer;
+}
+
+.resource-filter button:hover {
+    background-color: #1677e8;
+
+    color: white;
+}
+
+.resource-container {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 25px;
+}
+
+.resource-card {
+    background-color: #f8fafc;
+
+    padding: 25px;
+
+    border-radius: 12px;
+
+    border: 1px solid #e2e8f0;
+
+    position: relative;
+
+    transition: 0.3s;
+}
+
+.resource-card:hover {
+    transform: translateY(-5px);
+
+    box-shadow:
+        0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.resource-card h3 {
+    margin-bottom: 12px;
+}
+
+.resource-card p {
+    color: #64748b;
+
+    margin-bottom: 8px;
+}
+
+.resource-card strong {
+    color: #334155;
+}
+
+.favorite-btn {
+    position: absolute;
+
+    top: 15px;
+    right: 15px;
+
+    background: none;
+
+    border: none;
+
+    font-size: 24px;
+
+    cursor: pointer;
+}
+
+.resource-actions {
+    display: flex;
+
+    gap: 8px;
+
+    flex-wrap: wrap;
+
+    margin-top: 18px;
+}
+
+.resource-actions a,
+.edit-btn,
+.delete-btn {
+    padding: 8px 12px;
+
+    border-radius: 5px;
+
+    font-size: 14px;
+}
+
+.resource-actions a {
+    background-color: #1677e8;
+
+    color: white;
+}
+
+.edit-btn {
+    background-color: #f59e0b;
+
+    color: white;
+}
+
+.delete-btn {
+    background-color: #dc2626;
+
+    color: white;
+}
+
+.no-resource {
+    text-align: center;
+
+    grid-column: 1 / -1;
+
+    padding: 40px;
+
+    color: #64748b;
+}
+
+
+/* =========================
+   ADD RESOURCE
+========================= */
+
+#add-resource {
+    background-color: #f5f7fb;
+}
+
+#add-resource form {
+    max-width: 700px;
+
+    margin: auto;
+
+    background-color: white;
+
+    padding: 35px;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+#add-resource form div {
+    margin-bottom: 20px;
+}
+
+#add-resource label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-weight: bold;
+}
+
+#add-resource input,
+#add-resource select,
+#add-resource textarea {
+    width: 100%;
+
+    padding: 12px;
+
+    border: 1px solid #cbd5e1;
+
+    border-radius: 7px;
+
+    font-size: 16px;
+
+    font-family: inherit;
+}
+
+#add-resource textarea {
+    resize: vertical;
+}
+
+#add-resource input:focus,
+#add-resource select:focus,
+#add-resource textarea:focus,
+#search input:focus {
+    outline: none;
+
+    border-color: #1677e8;
+
+    box-shadow:
+        0 0 0 3px rgba(22, 119, 232, 0.1);
+}
+
+#add-resource button {
+    width: 100%;
+
+    padding: 13px;
+
+    background-color: #1677e8;
+
+    color: white;
+
+    border-radius: 7px;
+
+    font-weight: bold;
+
+    font-size: 16px;
+}
+
+#add-resource button:hover {
+    background-color: #075fc7;
+}
+
+
+/* =========================
+   ABOUT
+========================= */
+
+#about {
+    background-color: white;
+
+    text-align: center;
+}
+
+#about p {
+    max-width: 800px;
+
+    margin: 0 auto 15px;
+
+    color: #64748b;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+footer {
+    background-color: #172033;
+
+    color: white;
+
+    text-align: center;
+
+    padding: 25px;
+}
+
+footer p {
+    font-size: 14px;
+}
+
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 1000px) {
+
+    header {
+        flex-direction: column;
+
+        gap: 15px;
+    }
+
+    .hero-content {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-image {
+        min-height: 400px;
+    }
+
+    .feature-container {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .subject-container {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .resource-container {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+
+    #home {
+        min-height: 700px;
+
+        background-image:
+            linear-gradient(
+                180deg,
+                rgba(248, 251, 255, 0.97) 0%,
+                rgba(248, 251, 255, 0.90) 48%,
+                rgba(248, 251, 255, 0.35) 100%
+            ),
+            url("study-hero.png");
+
+        background-size:
+            cover,
+            cover;
+
+        background-position:
+            center,
+            center;
+    }
+
+
+    .hero-content {
+        min-height: 700px;
+    }
+
+
+    .hero-text {
+        width: 100%;
+
+        padding: 55px 7%;
+    }
+
+
+    .hero-text h2 {
+        font-size: 40px;
+    }
+
+
+    .hero-description {
+        font-size: 16px;
+    }
+
+
+    .resource-types {
+        gap: 18px;
+
+        justify-content: space-between;
+    }
+
+
+    .resource-types span {
+        font-size: 23px;
+    }
+
+}
+/* =========================
+   EDIT RESOURCE MODAL
+========================= */
+
+.edit-modal {
+    display: none;
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background-color: rgba(15, 23, 42, 0.65);
+
+    z-index: 2000;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 20px;
+}
+
+
+/* Show modal */
+
+.edit-modal.show {
+    display: flex;
+}
+
+
+/* Modal box */
+
+.edit-modal-content {
+    width: 100%;
+
+    max-width: 650px;
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    background-color: white;
+
+    border-radius: 14px;
+
+    padding: 30px;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.25);
+
+    animation:
+        modalAppear 0.25s ease;
+}
+
+
+/* Animation */
+
+@keyframes modalAppear {
+
+    from {
+        opacity: 0;
+
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform: translateY(0);
+    }
+
+}
+
+
+/* Header */
+
+.edit-modal-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 25px;
+
+    border-bottom: 1px solid #e2e8f0;
+
+    padding-bottom: 15px;
+}
+
+
+.edit-modal-header h2 {
+    margin: 0;
+
+    font-size: 25px;
+
+    text-align: left;
+
+    color: #172554;
+}
+
+
+/* Close */
+
+.close-modal {
+    background: none;
+
+    border: none;
+
+    font-size: 32px;
+
+    line-height: 1;
+
+    color: #64748b;
+
+    cursor: pointer;
+}
+
+
+.close-modal:hover {
+    color: #dc2626;
+}
+
+
+/* Form */
+
+#editResourceForm > div {
+    margin-bottom: 18px;
+}
+
+
+#editResourceForm label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-weight: bold;
+
+    color: #334155;
+}
+
+
+#editResourceForm input,
+#editResourceForm select,
+#editResourceForm textarea {
+    width: 100%;
+
+    padding: 12px;
+
+    border: 1px solid #cbd5e1;
+
+    border-radius: 7px;
+
+    font-family: inherit;
+
+    font-size: 16px;
+
+    background-color: white;
+}
+
+
+#editResourceForm input:focus,
+#editResourceForm select:focus,
+#editResourceForm textarea:focus {
+    outline: none;
+
+    border-color: #1677e8;
+
+    box-shadow:
+        0 0 0 3px rgba(22, 119, 232, 0.1);
+}
+
+
+/* Modal buttons */
+
+.edit-modal-actions {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 25px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #e2e8f0;
+}
+
+
+.cancel-edit,
+.save-edit {
+    padding: 11px 20px;
+
+    border-radius: 7px;
+
+    font-size: 15px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+
+.cancel-edit {
+    background-color: #e2e8f0;
+
+    color: #334155;
+}
+
+
+.cancel-edit:hover {
+    background-color: #cbd5e1;
+}
+
+
+.save-edit {
+    background-color: #1677e8;
+
+    color: white;
+}
+
+
+.save-edit:hover {
+    background-color: #075fc7;
+}
+
+
+/* Prevent background scrolling */
+
+body.modal-open {
+    overflow: hidden;
+}
+
+
+/* =========================
+   MOBILE MODAL
+========================= */
+
+@media (max-width: 600px) {
+
+    .edit-modal {
+        padding: 10px;
+    }
+
+
+    .edit-modal-content {
+        padding: 20px;
+
+        max-height: 95vh;
+    }
+
+
+    .edit-modal-header h2 {
+        font-size: 21px;
+    }
+
+
+    .edit-modal-actions {
+        flex-direction: column;
+    }
+
+
+    .cancel-edit,
+    .save-edit {
+        width: 100%;
+    }
+
+}

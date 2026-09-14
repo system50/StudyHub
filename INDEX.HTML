@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+        content="Study Resource Organizer - Organize all your study resources in one place.">
+
+    <title>Study Resource Organizer</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+    <!-- ================= HEADER ================= -->
+
+    <header>
+
+        <div class="logo">
+            <span class="logo-icon">📚</span>
+            <h1>Study Resource Organizer</h1>
+        </div>
+
+
+        <nav>
+
+            <ul>
+
+                <li><a href="#home">Home</a></li>
+
+                <li><a href="#dashboard">Dashboard</a></li>
+
+                <li><a href="#subjects">Subjects</a></li>
+
+                <li><a href="#resources">Resources</a></li>
+
+                <li><a href="#add-resource">Add Resource</a></li>
+
+                <li><a href="#about">About</a></li>
+
+            </ul>
+
+        </nav>
+
+    </header>
+
+
+
+    <main>
+
+
+        <!-- ================= HERO ================= -->
+
+<section id="home">
+
+    <div class="hero-content">
+
+        <div class="hero-text">
+
+            <p class="hero-tag">
+                LEARN &nbsp; | &nbsp; ORGANIZE &nbsp; | &nbsp; GROW
+            </p>
+
+            <h2>
+                Organize Your
+                <span>Study Resources</span>
+            </h2>
+
+            <p class="hero-description">
+                Store, organize and access all your study
+                resources in one place. Notes, books, videos,
+                tutorials and practice materials.
+            </p>
+
+            <a href="#resources" class="hero-button">
+                Explore Resources →
+            </a>
+
+            <div class="resource-types">
+
+                <div>
+                    <span>📖</span>
+                    <p>Notes</p>
+                </div>
+
+                <div>
+                    <span>▶️</span>
+                    <p>Videos</p>
+                </div>
+
+                <div>
+                    <span>📄</span>
+                    <p>Tutorials</p>
+                </div>
+
+                <div>
+                    <span>📊</span>
+                    <p>Practice</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+        <!-- ================= FEATURES ================= -->
+
+        <section id="features">
+
+            <div class="feature-container">
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        📚
+                    </div>
+
+                    <h3>
+                        Wide Resources
+                    </h3>
+
+                    <p>
+                        Access notes, books, videos,
+                        tutorials and practice materials
+                        for different subjects.
+                    </p>
+
+                </div>
+
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        📁
+                    </div>
+
+                    <h3>
+                        Stay Organized
+                    </h3>
+
+                    <p>
+                        Keep all your study materials
+                        in one place with easy
+                        subject-wise organization.
+                    </p>
+
+                </div>
+
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🔍
+                    </div>
+
+                    <h3>
+                        Find Quickly
+                    </h3>
+
+                    <p>
+                        Search and filter resources
+                        to find exactly what you need
+                        in seconds.
+                    </p>
+
+                </div>
+
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        📈
+                    </div>
+
+                    <h3>
+                        Track & Grow
+                    </h3>
+
+                    <p>
+                        Mark important resources,
+                        manage your materials and
+                        improve your learning.
+                    </p>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================= SEARCH ================= -->
+
+        <section id="search">
+
+            <h2>
+                Find Your Study Resource
+            </h2>
+
+
+            <form>
+
+                <label for="searchBox">
+                    Search:
+                </label>
+
+
+                <input
+                    type="search"
+                    id="searchBox"
+                    name="search"
+                    placeholder="Search notes, books, videos..."
+                >
+
+
+                <button type="submit">
+                    Search
+                </button>
+
+            </form>
+
+        </section>
+
+
+
+        <!-- ================= DASHBOARD ================= -->
+
+        <section id="dashboard">
+
+            <h2>
+                Study Dashboard
+            </h2>
+
+
+            <div class="dashboard-container">
+
+
+                <div class="dashboard-card">
+
+                    <h3 id="totalResources">
+                        0
+                    </h3>
+
+                    <p>
+                        Total Resources
+                    </p>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <h3 id="favoriteResources">
+                        0
+                    </h3>
+
+                    <p>
+                        Favorites
+                    </p>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <h3 id="totalSubjects">
+                        0
+                    </h3>
+
+                    <p>
+                        Subjects
+                    </p>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================= SUBJECTS ================= -->
+
+        <section id="subjects">
+
+            <h2>
+                Explore Subjects
+            </h2>
+
+
+            <div class="subject-container">
+
+
+                <article class="subject-card">
+
+                    <div class="subject-icon">
+                        💻
+                    </div>
+
+                    <h3>
+                        Programming
+                    </h3>
+
+                    <p>
+                        Programming notes, tutorials
+                        and practice resources.
+                    </p>
+
+                    <button
+                        class="subject-filter"
+                        data-subject="Programming"
+                    >
+                        View Resources
+                    </button>
+
+                </article>
+
+
+
+                <article class="subject-card">
+
+                    <div class="subject-icon">
+                        🧩
+                    </div>
+
+                    <h3>
+                        Data Structures
+                    </h3>
+
+                    <p>
+                        DSA notes, problems and
+                        learning materials.
+                    </p>
+
+                    <button
+                        class="subject-filter"
+                        data-subject="Data Structures"
+                    >
+                        View Resources
+                    </button>
+
+                </article>
+
+
+
+                <article class="subject-card">
+
+                    <div class="subject-icon">
+                        🗄️
+                    </div>
+
+                    <h3>
+                        Database
+                    </h3>
+
+                    <p>
+                        DBMS notes, SQL resources
+                        and tutorials.
+                    </p>
+
+                    <button
+                        class="subject-filter"
+                        data-subject="Database"
+                    >
+                        View Resources
+                    </button>
+
+                </article>
+
+
+
+                <article class="subject-card">
+
+                    <div class="subject-icon">
+                        🌐
+                    </div>
+
+                    <h3>
+                        Web Development
+                    </h3>
+
+                    <p>
+                        HTML, CSS, JavaScript and
+                        web development resources.
+                    </p>
+
+                    <button
+                        class="subject-filter"
+                        data-subject="Web Development"
+                    >
+                        View Resources
+                    </button>
+
+                </article>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================= RESOURCES ================= -->
+
+        <section id="resources">
+
+            <h2>
+                Study Resources
+            </h2>
+
+
+            <div class="resource-filter">
+
+                <button id="showAll">
+                    All
+                </button>
+
+
+                <button id="showFavorites">
+                    ⭐ Favorites
+                </button>
+
+
+                <select id="filterSubject">
+
+                    <option value="all">
+                        All Subjects
+                    </option>
+
+                    <option value="Programming">
+                        Programming
+                    </option>
+
+                    <option value="Data Structures">
+                        Data Structures
+                    </option>
+
+                    <option value="Database">
+                        Database
+                    </option>
+
+                    <option value="Web Development">
+                        Web Development
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="resource-container">
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================= ADD RESOURCE ================= -->
+
+        <section id="add-resource">
+
+            <h2>
+                Add Study Resource
+            </h2>
+
+
+            <form>
+
+
+                <div>
+
+                    <label for="resourceName">
+                        Resource Name:
+                    </label>
+
+                    <input
+                        type="text"
+                        id="resourceName"
+                        name="resourceName"
+                        placeholder="Enter resource name"
+                    >
+
+                </div>
+
+
+
+                <div>
+
+                    <label for="subject">
+                        Subject:
+                    </label>
+
+                    <select
+                        id="subject"
+                        name="subject"
+                    >
+
+                        <option value="">
+                            Select Subject
+                        </option>
+
+                        <option value="Programming">
+                            Programming
+                        </option>
+
+                        <option value="Data Structures">
+                            Data Structures
+                        </option>
+
+                        <option value="Database">
+                            Database
+                        </option>
+
+                        <option value="Web Development">
+                            Web Development
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <div>
+
+                    <label for="resourceType">
+                        Resource Type:
+                    </label>
+
+                    <select
+                        id="resourceType"
+                        name="resourceType"
+                    >
+
+                        <option value="">
+                            Select Type
+                        </option>
+
+                        <option value="Notes">
+                            Notes
+                        </option>
+
+                        <option value="Book">
+                            Book
+                        </option>
+
+                        <option value="Video">
+                            Video
+                        </option>
+
+                        <option value="Tutorial">
+                            Tutorial
+                        </option>
+
+                        <option value="Practice">
+                            Practice
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <div>
+
+                    <label for="resourceLink">
+                        Resource Link:
+                    </label>
+
+                    <input
+                        type="url"
+                        id="resourceLink"
+                        name="resourceLink"
+                        placeholder="https://example.com"
+                    >
+
+                </div>
+
+
+
+                <div>
+
+                    <label for="description">
+                        Description:
+                    </label>
+
+                    <textarea
+                        id="description"
+                        name="description"
+                        rows="5"
+                        placeholder="Enter resource description"
+                    ></textarea>
+
+                </div>
+
+
+
+                <button type="submit">
+                    Add Resource
+                </button>
+
+
+            </form>
+
+        </section>
+
+
+
+        <!-- ================= ABOUT ================= -->
+
+        <section id="about">
+
+            <h2>
+                About Study Resource Organizer
+            </h2>
+
+
+            <p>
+                Study Resource Organizer is a mini project
+                designed to help students manage their
+                study materials in one organized place.
+            </p>
+
+
+            <p>
+                Students can organize resources according
+                to subjects and resource types such as
+                notes, books, videos, tutorials and
+                practice materials.
+            </p>
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer>
+
+        <p>
+            &copy; 2026 Study Resource Organizer.
+            All Rights Reserved.
+        </p>
+
+    </footer>
+
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
