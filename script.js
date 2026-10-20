@@ -62,28 +62,92 @@ const totalSubjects =
    RESOURCES
 ================================= */
 
-let resources =
-    JSON.parse(
-        localStorage.getItem("studyResources")
-    ) || [];
-
-
+let resources = [];
+let currentUser = null;
 let currentFilter = "all";
-
 let showingFavorites = false;
+let appStarted = false;
 
+const supabaseConfig = window.STUDYHUB_SUPABASE_CONFIG || {};
+const supabaseUrl = (supabaseConfig.url || "").trim();
+const supabaseAnonKey = (supabaseConfig.anonKey || "").trim();
+const supabaseReady = Boolean(
+    window.supabase && supabaseUrl && supabaseAnonKey &&
+    !supabaseUrl.includes("YOUR_PROJECT") && !supabaseAnonKey.includes("YOUR_SUPABASE")
+);
+const supabaseClient = supabaseReady
+    ? window.supabase.createClient(supabaseUrl, supabaseAnonKey)
+    : null;
 
-/* =================================
-   SAVE RESOURCES
-================================= */
+/* Save each signed-in user's resources to the online Supabase database. */
+async function saveResources() {
+    if (!supabaseClient || !currentUser) {
+        showAuthMessage("Please configure Supabase and log in to save online.", false);
+        return;
+    }
 
-function saveResources() {
+    const rows = resources.map(resource => ({
+        id: Number(resource.id),
+        user_id: currentUser.id,
+        name: resource.name,
+        subject: resource.subject,
+        type: resource.type,
+        link: resource.link,
+        description: resource.description,
+        favorite: Boolean(resource.favorite),
+        updated_at: new Date().toISOString()
+    }));
 
-    localStorage.setItem(
-        "studyResources",
-        JSON.stringify(resources)
-    );
+    try {
+        if (rows.length) {
+            const { error: upsertError } = await supabaseClient
+                .from("study_resources")
+                .upsert(rows, { onConflict: "user_id,id" });
+            if (upsertError) throw upsertError;
+        }
 
+        const { data: existingRows, error: readError } = await supabaseClient
+            .from("study_resources")
+            .select("id")
+            .eq("user_id", currentUser.id);
+        if (readError) throw readError;
+
+        const keepIds = new Set(rows.map(row => row.id));
+        const idsToDelete = (existingRows || [])
+            .map(row => Number(row.id))
+            .filter(id => !keepIds.has(id));
+
+        if (idsToDelete.length) {
+            const { error: deleteError } = await supabaseClient
+                .from("study_resources")
+                .delete()
+                .eq("user_id", currentUser.id)
+                .in("id", idsToDelete);
+            if (deleteError) throw deleteError;
+        }
+    } catch (error) {
+        console.error("Online save failed:", error);
+        alert("Online save failed. Please check your Supabase setup and database SQL.");
+    }
+}
+
+async function loadOnlineResources() {
+    const { data, error } = await supabaseClient
+        .from("study_resources")
+        .select("id, name, subject, type, link, description, favorite")
+        .eq("user_id", currentUser.id)
+        .order("id", { ascending: true });
+
+    if (error) throw error;
+    resources = (data || []).map(row => ({
+        id: Number(row.id),
+        name: row.name,
+        subject: row.subject,
+        type: row.type,
+        link: row.link,
+        description: row.description,
+        favorite: Boolean(row.favorite)
+    }));
 }
 
 
@@ -1149,4 +1213,155 @@ function closeEditModal() {
    INITIAL LOAD
 ================================= */
 
-refreshResources();
+
+/* =================================
+   LOGIN / SIGNUP AND APP STARTUP
+================================= */
+const authScreen = document.querySelector("#authScreen");
+const authForm = document.querySelector("#authForm");
+const authEmail = document.querySelector("#authEmail");
+const authPassword = document.querySelector("#authPassword");
+const authConfirmPassword = document.querySelector("#authConfirmPassword");
+const confirmPasswordLabel = document.querySelector("#confirmPasswordLabel");
+const authSubmit = document.querySelector("#authSubmit");
+const authHeading = document.querySelector("#authHeading");
+const authSubheading = document.querySelector("#authSubheading");
+const authSwitch = document.querySelector("#authSwitch");
+const authSwitchText = document.querySelector("#authSwitchText");
+const authMessage = document.querySelector("#authMessage");
+const logoutButton = document.querySelector("#logoutButton");
+const signedInEmail = document.querySelector("#signedInEmail");
+let authMode = "login";
+
+function showAuthMessage(message, success = false) {
+    if (!authMessage) return;
+    authMessage.textContent = message || "";
+    authMessage.classList.toggle("success", Boolean(success));
+}
+
+function setAuthMode(mode) {
+    authMode = mode;
+    const signup = mode === "signup";
+    authHeading.textContent = signup ? "Create your account" : "Welcome back!";
+    authSubheading.textContent = signup
+        ? "Sign up with your email and create a password."
+        : "Log in to access your personal study resources.";
+    authSubmit.textContent = signup ? "Create Account" : "Login";
+    authSwitchText.textContent = signup ? "Already have an account?" : "New to StudyHub?";
+    authSwitch.textContent = signup ? "Login" : "Create account";
+    authConfirmPassword.hidden = !signup;
+    confirmPasswordLabel.hidden = !signup;
+    authConfirmPassword.required = signup;
+    authPassword.autocomplete = signup ? "new-password" : "current-password";
+    authPassword.value = "";
+    authConfirmPassword.value = "";
+    showAuthMessage("");
+}
+
+authSwitch.addEventListener("click", () => {
+    setAuthMode(authMode === "login" ? "signup" : "login");
+});
+
+authForm.addEventListener("submit", async event => {
+    event.preventDefault();
+    showAuthMessage("");
+
+    if (!supabaseClient) {
+        showAuthMessage("Setup required: add your Supabase Project URL and anon key in supabase-config.js, then run supabase-setup.sql.");
+        return;
+    }
+
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+
+    if (password.length < 6) {
+        showAuthMessage("Password must be at least 6 characters.");
+        return;
+    }
+
+    if (authMode === "signup" && password !== authConfirmPassword.value) {
+        showAuthMessage("Passwords do not match.");
+        return;
+    }
+
+    authSubmit.disabled = true;
+    authSubmit.textContent = authMode === "signup" ? "Creating account..." : "Logging in...";
+
+    try {
+        if (authMode === "signup") {
+            const { data, error } = await supabaseClient.auth.signUp({
+                email,
+                password,
+                options: { emailRedirectTo: window.location.origin }
+            });
+            if (error) throw error;
+            if (data.session) {
+                showAuthMessage("Account created successfully!", true);
+            } else {
+                showAuthMessage("Account created. Check your email to confirm, then log in.", true);
+                setAuthMode("login");
+                authEmail.value = email;
+            }
+        } else {
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) throw error;
+        }
+    } catch (error) {
+        showAuthMessage(error.message || "Could not sign in. Please try again.");
+    } finally {
+        authSubmit.disabled = false;
+        authSubmit.textContent = authMode === "signup" ? "Create Account" : "Login";
+    }
+});
+
+logoutButton.addEventListener("click", async () => {
+    if (!supabaseClient) return;
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) alert(error.message);
+});
+
+async function openStudyHub(session) {
+    if (!session || !session.user) return;
+    currentUser = session.user;
+    document.body.classList.add("authenticated");
+    signedInEmail.textContent = currentUser.email || "Signed in";
+    if (appStarted) return;
+    appStarted = true;
+
+    try {
+        await loadOnlineResources();
+        refreshResources();
+    } catch (error) {
+        console.error("Could not load online resources:", error);
+        alert("Could not load your online resources. Please check that you ran supabase-setup.sql.");
+        resources = [];
+        refreshResources();
+    }
+}
+
+function showLoggedOutScreen() {
+    currentUser = null;
+    resources = [];
+    appStarted = false;
+    document.body.classList.remove("authenticated");
+    signedInEmail.textContent = "";
+    setAuthMode("login");
+}
+
+if (!supabaseClient) {
+    showAuthMessage("First-time setup: open README.txt and follow the Supabase setup steps.", false);
+} else {
+    supabaseClient.auth.getSession().then(({ data, error }) => {
+        if (error) console.error(error);
+        if (data && data.session) openStudyHub(data.session);
+        else showLoggedOutScreen();
+    });
+
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        if (session) {
+            openStudyHub(session);
+        } else {
+            showLoggedOutScreen();
+        }
+    });
+}

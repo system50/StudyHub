@@ -19,6 +19,49 @@
 
 <body>
 
+    <!-- Login and signup screen: shown before StudyHub opens -->
+    <section id="authScreen" class="auth-screen">
+        <div class="auth-background-shape shape-one"></div>
+        <div class="auth-background-shape shape-two"></div>
+        <div class="auth-panel">
+            <div class="auth-brand">
+                <div class="auth-logo">📚</div>
+                <div>
+                    <h1>StudyHub</h1>
+                    <p>Your learning space, all in one place</p>
+                </div>
+            </div>
+            <div class="auth-intro">
+                <span class="auth-eyebrow">LEARN • ORGANIZE • GROW</span>
+                <h2 id="authHeading">Welcome back!</h2>
+                <p id="authSubheading">Log in to access your personal study resources.</p>
+            </div>
+            <form id="authForm">
+                <label for="authEmail">Email address</label>
+                <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required>
+                <label for="authPassword">Password</label>
+                <input id="authPassword" type="password" autocomplete="current-password" minlength="6" placeholder="Enter your password" required>
+                <label id="confirmPasswordLabel" for="authConfirmPassword" hidden>Confirm password</label>
+                <input id="authConfirmPassword" type="password" autocomplete="new-password" minlength="6" placeholder="Re-enter your password" hidden>
+                <button id="authSubmit" type="submit">Login</button>
+                <p id="authMessage" class="auth-message" role="status" aria-live="polite"></p>
+            </form>
+            <p class="auth-switch"><span id="authSwitchText">New to StudyHub?</span>
+                <button type="button" id="authSwitch">Create account</button>
+            </p>
+            <p class="auth-security">🔒 Your account and study resources are private.</p>
+        </div>
+        <div class="auth-side-copy">
+            <div class="auth-side-content">
+                <span>YOUR STUDY JOURNEY</span>
+                <h2>Make learning<br>feel organized.</h2>
+                <p>Keep notes, books, videos and useful resources together — and access your saved data when you sign in.</p>
+            </div>
+            <div class="auth-side-bottom">STUDY SMARTER, EVERY DAY.</div>
+        </div>
+    </section>
+
+
 
     <!-- ================= HEADER ================= -->
 
@@ -49,6 +92,11 @@
             </ul>
 
         </nav>
+
+        <div class="account-controls">
+            <span id="signedInEmail" aria-live="polite"></span>
+            <button id="logoutButton" type="button">Logout</button>
+        </div>
 
     </header>
 
@@ -668,6 +716,8 @@
 
 
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
     <script src="script.js"></script>
 
 </body>

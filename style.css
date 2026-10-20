@@ -1158,3 +1158,88 @@ body.modal-open {
     }
 
 }
+
+/* =========================
+   AUTHENTICATION SCREEN
+========================= */
+.auth-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    min-height: 100vh;
+    overflow-y: auto;
+    background: #eef4ff;
+    font-family: Arial, sans-serif;
+}
+.auth-panel {
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: min(100%, 590px);
+    margin: auto;
+    padding: 48px clamp(24px, 6vw, 78px);
+}
+.auth-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 42px; }
+.auth-logo {
+    width: 54px; height: 54px; display: grid; place-items: center;
+    border-radius: 16px; font-size: 29px; color: white;
+    background: linear-gradient(135deg, #1677e8, #6b8cff);
+    box-shadow: 0 10px 25px rgba(22,119,232,.22);
+}
+.auth-brand h1 { color: #172554; font-size: 25px; margin-bottom: 3px; }
+.auth-brand p { color: #71809a; font-size: 13px; }
+.auth-eyebrow { color: #1677e8; font-size: 11px; letter-spacing: 2px; font-weight: 800; }
+.auth-intro h2 { color: #172554; font-size: clamp(30px, 3vw, 40px); margin: 12px 0 9px; text-align: left; }
+.auth-intro p { color: #64748b; margin-bottom: 27px; font-size: 15px; }
+#authForm { display: flex; flex-direction: column; }
+#authForm label { color: #273650; font-weight: 700; font-size: 13px; margin: 0 0 8px; }
+#authForm input {
+    width: 100%; padding: 14px 15px; border: 1px solid #d5deed; border-radius: 10px;
+    background: rgba(255,255,255,.94); font-size: 15px; margin-bottom: 19px; outline: none;
+}
+#authForm input:focus { border-color: #1677e8; box-shadow: 0 0 0 4px rgba(22,119,232,.10); }
+#authForm button {
+    width: 100%; padding: 15px; border-radius: 10px; color: white; font-size: 16px;
+    font-weight: 700; background: linear-gradient(100deg, #176ee8, #477df0);
+    box-shadow: 0 10px 22px rgba(22,119,232,.2); transition: transform .2s, box-shadow .2s;
+}
+#authForm button:hover { transform: translateY(-1px); box-shadow: 0 13px 25px rgba(22,119,232,.26); }
+.auth-message { min-height: 22px; margin-top: 12px; font-size: 13px; color: #b42318; }
+.auth-message.success { color: #16804a; }
+.auth-switch { color: #66758e; text-align: center; margin-top: 8px; font-size: 14px; }
+.auth-switch button { background: none; color: #1677e8; font-weight: 700; padding: 4px; }
+.auth-security { margin-top: 35px; text-align: center; color: #8491a5; font-size: 12px; }
+.auth-side-copy {
+    position: relative; display: flex; align-items: center; overflow: hidden; padding: 8%;
+    color: white; background: linear-gradient(145deg, rgba(14,34,69,.95), rgba(22,91,170,.91)),
+        url("study-hero.png") center/cover;
+}
+.auth-side-copy::before, .auth-side-copy::after {
+    content: ""; position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,.16);
+}
+.auth-side-copy::before { width: 520px; height: 520px; right: -170px; top: -130px; }
+.auth-side-copy::after { width: 360px; height: 360px; right: -85px; top: -50px; }
+.auth-side-content { position: relative; z-index: 1; max-width: 480px; }
+.auth-side-content > span { font-size: 12px; font-weight: 700; letter-spacing: 3px; color: #9fcaff; }
+.auth-side-content h2 { text-align: left; color: white; font-size: clamp(38px, 4.4vw, 58px); line-height: 1.1; margin: 20px 0; }
+.auth-side-content p { color: #dceaff; font-size: 17px; line-height: 1.8; max-width: 430px; }
+.auth-side-bottom { position: absolute; bottom: 35px; left: 8%; color: #b8d7ff; font-size: 11px; letter-spacing: 3px; }
+body:not(.authenticated) > header,
+body:not(.authenticated) > main,
+body:not(.authenticated) > footer { display: none !important; }
+body.authenticated .auth-screen { display: none; }
+.account-controls { display: flex; align-items: center; gap: 10px; }
+#signedInEmail { color: #cbd5e1; font-size: 12px; max-width: 170px; overflow-wrap: anywhere; }
+#logoutButton { padding: 9px 13px; border-radius: 7px; color: white; background: #dc4560; font-size: 13px; }
+#logoutButton:hover { background: #b92d48; }
+@media (max-width: 800px) {
+    .auth-screen { grid-template-columns: 1fr; }
+    .auth-panel { padding: 34px 25px; min-height: 100vh; }
+    .auth-brand { margin-bottom: 32px; }
+    .auth-side-copy { display: none; }
+    .account-controls { justify-content: center; flex-wrap: wrap; }
+    #signedInEmail { max-width: 220px; }
+}
