@@ -1,287 +1,502 @@
-/* =================================
-   STUDY RESOURCE ORGANIZE
-================================= */
+ 
+/* =========================================
+   STUDYHUB - FIREBASE VERSION
+========================================= */
 
+/* =========================================
+   FIREBASE INITIALIZATION
+========================================= */
 
-/* =================================
-   SELECT HTML ELEMENTS
-================================= */
+const auth = window.firebaseAuth;
+const db = window.firestoreDb;
 
-const addResourceForm =
-    document.querySelector("#add-resource form");
-
-const resourceNameInput =
-    document.querySelector("#resourceName");
-
-const subjectInput =
-    document.querySelector("#subject");
-
-const resourceTypeInput =
-    document.querySelector("#resourceType");
-
-const resourceLinkInput =
-    document.querySelector("#resourceLink");
-
-const descriptionInput =
-    document.querySelector("#description");
-
-const resourceContainer =
-    document.querySelector(".resource-container");
-
-const searchInput =
-    document.querySelector("#searchBox");
-
-const searchForm =
-    document.querySelector("#search form");
-
-const filterSubject =
-    document.querySelector("#filterSubject");
-
-const showAllButton =
-    document.querySelector("#showAll");
-
-const showFavoritesButton =
-    document.querySelector("#showFavorites");
-
-
-/* =================================
-   DASHBOARD
-================================= */
-
-const totalResources =
-    document.querySelector("#totalResources");
-
-const favoriteResources =
-    document.querySelector("#favoriteResources");
-
-const totalSubjects =
-    document.querySelector("#totalSubjects");
-
-
-/* =================================
-   RESOURCES
-================================= */
-
-let resources = [];
 let currentUser = null;
+let resources = [];
 let currentFilter = "all";
 let showingFavorites = false;
-let appStarted = false;
+let loadedUserId = null;
 
-const supabaseConfig = window.STUDYHUB_SUPABASE_CONFIG || {};
-const supabaseUrl = (supabaseConfig.url || "").trim();
-const supabaseAnonKey = (supabaseConfig.anonKey || "").trim();
-const supabaseReady = Boolean(
-    window.supabase && supabaseUrl && supabaseAnonKey &&
-    !supabaseUrl.includes("YOUR_PROJECT") && !supabaseAnonKey.includes("YOUR_SUPABASE")
-);
-const supabaseClient = supabaseReady
-    ? window.supabase.createClient(supabaseUrl, supabaseAnonKey)
-    : null;
 
-/* Save each signed-in user's resources to the online Supabase database. */
-async function saveResources() {
-    if (!supabaseClient || !currentUser) {
-        showAuthMessage("Please configure Supabase and log in to save online.", false);
+/* =========================================
+   SELECT HTML ELEMENTS
+========================================= */
+
+const addResourceForm = document.querySelector("#add-resource form");
+const resourceNameInput = document.querySelector("#resourceName");
+const subjectInput = document.querySelector("#subject");
+const resourceTypeInput = document.querySelector("#resourceType");
+const resourceLinkInput = document.querySelector("#resourceLink");
+const descriptionInput = document.querySelector("#description");
+
+const resourceContainer = document.querySelector(".resource-container");
+const searchInput = document.querySelector("#searchBox");
+const searchForm = document.querySelector("#search form");
+const filterSubject = document.querySelector("#filterSubject");
+
+const showAllButton = document.querySelector("#showAll");
+const showFavoritesButton = document.querySelector("#showFavorites");
+
+const totalResources = document.querySelector("#totalResources");
+const favoriteResources = document.querySelector("#favoriteResources");
+const totalSubjects = document.querySelector("#totalSubjects");
+
+
+/* =========================================
+   AUTHENTICATION ELEMENTS
+========================================= */
+
+const authScreen = document.querySelector("#authScreen");
+const authForm = document.querySelector("#authForm");
+const authEmail = document.querySelector("#authEmail");
+const authPassword = document.querySelector("#authPassword");
+const authConfirmPassword = document.querySelector("#authConfirmPassword");
+
+const confirmPasswordLabel = document.querySelector("#confirmPasswordLabel");
+const authSubmit = document.querySelector("#authSubmit");
+const authHeading = document.querySelector("#authHeading");
+const authSubheading = document.querySelector("#authSubheading");
+const authSwitch = document.querySelector("#authSwitch");
+const authSwitchText = document.querySelector("#authSwitchText");
+const authMessage = document.querySelector("#authMessage");
+
+const logoutButton = document.querySelector("#logoutButton");
+const signedInEmail = document.querySelector("#signedInEmail");
+
+let authMode = "login";
+
+
+/* =========================================
+   AUTHENTICATION MESSAGES
+========================================= */
+
+function showAuthMessage(message, success = false) {
+
+    authMessage.textContent = message || "";
+
+    authMessage.classList.toggle("success", success);
+
+}
+
+
+/* =========================================
+   LOGIN / SIGNUP MODE
+========================================= */
+
+function setAuthMode(mode) {
+
+    authMode = mode;
+
+    const signup = mode === "signup";
+
+    authHeading.textContent = signup
+        ? "Create your account"
+        : "Welcome back!";
+
+    authSubheading.textContent = signup
+        ? "Sign up with your email and create a password."
+        : "Log in to access your personal study resources.";
+
+    authSubmit.textContent = signup
+        ? "Create Account"
+        : "Login";
+
+    authSwitchText.textContent = signup
+        ? "Already have an account?"
+        : "New to StudyHub?";
+
+    authSwitch.textContent = signup
+        ? "Login"
+        : "Create account";
+
+    authConfirmPassword.hidden = !signup;
+    confirmPasswordLabel.hidden = !signup;
+
+    authConfirmPassword.required = signup;
+
+    authPassword.value = "";
+    authConfirmPassword.value = "";
+
+    authPassword.autocomplete = signup
+        ? "new-password"
+        : "current-password";
+
+    showAuthMessage("");
+
+}
+
+
+authSwitch.addEventListener("click", function () {
+
+    setAuthMode(
+        authMode === "login" ? "signup" : "login"
+    );
+
+});
+
+
+/* =========================================
+   LOGIN / SIGNUP
+========================================= */
+
+authForm.addEventListener("submit", async function (event) {
+
+    event.preventDefault();
+
+    showAuthMessage("");
+
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+
+    if (password.length < 6) {
+
+        showAuthMessage("Password must be at least 6 characters.");
+
         return;
+
     }
 
-    const rows = resources.map(resource => ({
-        id: Number(resource.id),
-        user_id: currentUser.id,
-        name: resource.name,
-        subject: resource.subject,
-        type: resource.type,
-        link: resource.link,
-        description: resource.description,
-        favorite: Boolean(resource.favorite),
-        updated_at: new Date().toISOString()
-    }));
+    if (
+        authMode === "signup" &&
+        password !== authConfirmPassword.value
+    ) {
+
+        showAuthMessage("Passwords do not match.");
+
+        return;
+
+    }
+
+    authSubmit.disabled = true;
+
+    authSubmit.textContent = authMode === "signup"
+        ? "Creating account..."
+        : "Logging in...";
 
     try {
-        if (rows.length) {
-            const { error: upsertError } = await supabaseClient
-                .from("study_resources")
-                .upsert(rows, { onConflict: "user_id,id" });
-            if (upsertError) throw upsertError;
+
+        if (authMode === "signup") {
+
+            await auth.createUserWithEmailAndPassword(
+                email,
+                password
+            );
+
+            showAuthMessage(
+                "Account created successfully!",
+                true
+            );
+
+        } else {
+
+            await auth.signInWithEmailAndPassword(
+                email,
+                password
+            );
+
         }
 
-        const { data: existingRows, error: readError } = await supabaseClient
-            .from("study_resources")
-            .select("id")
-            .eq("user_id", currentUser.id);
-        if (readError) throw readError;
-
-        const keepIds = new Set(rows.map(row => row.id));
-        const idsToDelete = (existingRows || [])
-            .map(row => Number(row.id))
-            .filter(id => !keepIds.has(id));
-
-        if (idsToDelete.length) {
-            const { error: deleteError } = await supabaseClient
-                .from("study_resources")
-                .delete()
-                .eq("user_id", currentUser.id)
-                .in("id", idsToDelete);
-            if (deleteError) throw deleteError;
-        }
     } catch (error) {
-        console.error("Online save failed:", error);
-        alert("Online save failed. Please check your Supabase setup and database SQL.");
+
+        showAuthMessage(
+            error.message || "Authentication failed."
+        );
+
+    } finally {
+
+        authSubmit.disabled = false;
+
+        authSubmit.textContent = authMode === "signup"
+            ? "Create Account"
+            : "Login";
+
     }
+
+});
+
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+logoutButton.addEventListener("click", async function () {
+
+    try {
+
+        await auth.signOut();
+
+    } catch (error) {
+
+        alert(error.message);
+
+    }
+
+});
+
+
+/* =========================================
+   AUTHENTICATION STATE
+========================================= */
+
+auth.onAuthStateChanged(async function (user) {
+
+    if (user) {
+
+        currentUser = user;
+
+        document.body.classList.add("authenticated");
+
+        signedInEmail.textContent = user.email || "Signed in";
+
+        if (loadedUserId === user.uid) return;
+
+        loadedUserId = user.uid;
+
+        resources = [];
+
+        try {
+
+            await loadOnlineResources();
+
+            refreshResources();
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert("Could not load resources. Please check Firestore rules.");
+
+            refreshResources();
+
+        }
+
+    } else {
+
+        currentUser = null;
+
+        loadedUserId = null;
+
+        resources = [];
+
+        document.body.classList.remove("authenticated");
+
+        signedInEmail.textContent = "";
+
+        setAuthMode("login");
+
+        refreshResources();
+
+    }
+
+});
+
+
+/* =========================================
+   FIRESTORE COLLECTION
+========================================= */
+
+function getResourceCollection() {
+
+    if (!currentUser) {
+
+        throw new Error("Please login first.");
+
+    }
+
+    return db
+        .collection("users")
+        .doc(currentUser.uid)
+        .collection("study_resources");
+
 }
+
+
+/* =========================================
+   LOAD ONLINE RESOURCES
+========================================= */
 
 async function loadOnlineResources() {
-    const { data, error } = await supabaseClient
-        .from("study_resources")
-        .select("id, name, subject, type, link, description, favorite")
-        .eq("user_id", currentUser.id)
-        .order("id", { ascending: true });
 
-    if (error) throw error;
-    resources = (data || []).map(row => ({
-        id: Number(row.id),
-        name: row.name,
-        subject: row.subject,
-        type: row.type,
-        link: row.link,
-        description: row.description,
-        favorite: Boolean(row.favorite)
-    }));
+    const snapshot = await getResourceCollection().get();
+
+    resources = snapshot.docs.map(function (document) {
+
+        return {
+            id: document.id,
+            ...document.data()
+        };
+
+    });
+
 }
 
 
-/* =================================
+/* =========================================
+   SAVE RESOURCE
+========================================= */
+
+async function saveResource(resource) {
+
+    try {
+
+        await getResourceCollection()
+            .doc(String(resource.id))
+            .set(resource);
+
+        return true;
+
+    } catch (error) {
+
+        console.error("Save failed:", error);
+
+        alert("Could not save resource: " + error.message);
+
+        return false;
+
+    }
+
+}
+
+
+/* =========================================
+   DELETE ONLINE RESOURCE
+========================================= */
+
+async function deleteOnlineResource(id) {
+
+    try {
+
+        await getResourceCollection()
+            .doc(String(id))
+            .delete();
+
+        return true;
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert("Could not delete resource: " + error.message);
+
+        return false;
+
+    }
+
+}
+
+
+/* =========================================
    UPDATE DASHBOARD
-================================= */
+========================================= */
 
 function updateDashboard() {
 
-    totalResources.textContent =
-        resources.length;
+    totalResources.textContent = resources.length;
 
+    const favorites = resources.filter(function (resource) {
 
-    const favorites =
-        resources.filter(function(resource) {
+        return resource.favorite === true;
 
-            return resource.favorite === true;
+    });
 
-        });
+    favoriteResources.textContent = favorites.length;
 
+    const subjects = new Set(
+        resources.map(function (resource) {
 
-    favoriteResources.textContent =
-        favorites.length;
+            return resource.subject;
 
+        })
+    );
 
-    const subjects =
-        new Set(
-            resources.map(function(resource) {
-
-                return resource.subject;
-
-            })
-        );
-
-
-    totalSubjects.textContent =
-        subjects.size;
+    totalSubjects.textContent = subjects.size;
 
 }
 
 
-/* =================================
+/* =========================================
    DISPLAY RESOURCES
-================================= */
+========================================= */
 
 function displayResources(resourceList) {
 
     resourceContainer.innerHTML = "";
 
-
     if (resourceList.length === 0) {
 
-        resourceContainer.innerHTML = `
-            <p class="no-resource">
-                No study resources found.
-            </p>
-        `;
+        const message = document.createElement("p");
+
+        message.className = "no-resource";
+
+        message.textContent = "No study resources found.";
+
+        resourceContainer.appendChild(message);
 
         return;
 
     }
 
+    resourceList.forEach(function (resource) {
 
-    resourceList.forEach(function(resource) {
+        const card = document.createElement("article");
 
-        const card =
-            document.createElement("article");
+        card.className = "resource-card";
 
-        card.classList.add("resource-card");
+        const favorite = document.createElement("button");
 
+        favorite.className = "favorite-btn";
+        favorite.dataset.id = resource.id;
+        favorite.textContent = resource.favorite ? "⭐" : "☆";
+        favorite.title = "Add to favorites";
 
-        card.innerHTML = `
+        const heading = document.createElement("h3");
 
-            <button
-                class="favorite-btn"
-                data-id="${resource.id}"
-                title="Add to favorites"
-            >
-                ${resource.favorite ? "⭐" : "☆"}
-            </button>
+        heading.textContent = resource.name;
 
+        const description = document.createElement("p");
 
-            <h3>
-                ${resource.name}
-            </h3>
+        description.textContent = resource.description;
 
+        const type = document.createElement("p");
 
-            <p>
-                ${resource.description}
-            </p>
+        type.textContent = "Type: " + resource.type;
 
+        const subject = document.createElement("p");
 
-            <p>
-                <strong>Type:</strong>
-                ${resource.type}
-            </p>
+        subject.textContent = "Subject: " + resource.subject;
 
+        const actions = document.createElement("div");
 
-            <p>
-                <strong>Subject:</strong>
-                ${resource.subject}
-            </p>
+        actions.className = "resource-actions";
 
+        const link = document.createElement("a");
 
-            <div class="resource-actions">
+        link.href = resource.link;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = "Open Resource";
 
-                <a
-                    href="${resource.link}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Open Resource
-                </a>
+        const edit = document.createElement("button");
 
+        edit.className = "edit-btn";
+        edit.dataset.id = resource.id;
+        edit.textContent = "Edit";
 
-                <button
-                    class="edit-btn"
-                    data-id="${resource.id}"
-                >
-                    Edit
-                </button>
+        const remove = document.createElement("button");
 
+        remove.className = "delete-btn";
+        remove.dataset.id = resource.id;
+        remove.textContent = "Delete";
 
-                <button
-                    class="delete-btn"
-                    data-id="${resource.id}"
-                >
-                    Delete
-                </button>
+        actions.append(link, edit, remove);
 
-            </div>
-
-        `;
-
+        card.append(
+            favorite,
+            heading,
+            description,
+            type,
+            subject,
+            actions
+        );
 
         resourceContainer.appendChild(card);
 
@@ -290,1078 +505,573 @@ function displayResources(resourceList) {
 }
 
 
-/* =================================
+/* =========================================
    FILTER RESOURCES
-================================= */
+========================================= */
 
 function getFilteredResources() {
 
     let result = [...resources];
 
-
-    /* Subject */
-
     if (currentFilter !== "all") {
 
-        result =
-            result.filter(function(resource) {
+        result = result.filter(function (resource) {
 
-                return resource.subject === currentFilter;
+            return resource.subject === currentFilter;
 
-            });
+        });
 
     }
-
-
-    /* Favorites */
 
     if (showingFavorites) {
 
-        result =
-            result.filter(function(resource) {
+        result = result.filter(function (resource) {
 
-                return resource.favorite === true;
+            return resource.favorite === true;
 
-            });
+        });
 
     }
 
-
-    /* Search */
-
-    const searchText =
-        searchInput.value
-            .trim()
-            .toLowerCase();
-
+    const searchText = searchInput.value.trim().toLowerCase();
 
     if (searchText !== "") {
 
-        result =
-            result.filter(function(resource) {
+        result = result.filter(function (resource) {
 
-                return (
+            return (
+                resource.name.toLowerCase().includes(searchText) ||
+                resource.subject.toLowerCase().includes(searchText) ||
+                resource.type.toLowerCase().includes(searchText) ||
+                resource.description.toLowerCase().includes(searchText)
+            );
 
-                    resource.name
-                        .toLowerCase()
-                        .includes(searchText)
-
-                    ||
-
-                    resource.subject
-                        .toLowerCase()
-                        .includes(searchText)
-
-                    ||
-
-                    resource.type
-                        .toLowerCase()
-                        .includes(searchText)
-
-                    ||
-
-                    resource.description
-                        .toLowerCase()
-                        .includes(searchText)
-
-                );
-
-            });
+        });
 
     }
-
 
     return result;
 
 }
 
 
-/* =================================
+/* =========================================
    REFRESH
-================================= */
+========================================= */
 
 function refreshResources() {
 
-    displayResources(
-        getFilteredResources()
-    );
+    displayResources(getFilteredResources());
 
     updateDashboard();
 
 }
 
 
-/* =================================
+/* =========================================
    ADD RESOURCE
-================================= */
+========================================= */
 
-addResourceForm.addEventListener(
-    "submit",
-    function(event) {
+addResourceForm.addEventListener("submit", async function (event) {
 
-        event.preventDefault();
+    event.preventDefault();
 
+    if (!currentUser) {
 
-        const name =
-            resourceNameInput.value.trim();
+        alert("Please login first.");
 
-        const subject =
-            subjectInput.value;
+        return;
 
-        const type =
-            resourceTypeInput.value;
+    }
 
-        const link =
-            resourceLinkInput.value.trim();
+    const name = resourceNameInput.value.trim();
+    const subject = subjectInput.value;
+    const type = resourceTypeInput.value;
+    const link = resourceLinkInput.value.trim();
+    const description = descriptionInput.value.trim();
 
-        const description =
-            descriptionInput.value.trim();
+    if (!name || !subject || !type || !link || !description) {
 
+        alert("Please fill all fields.");
 
-        /* Validation */
+        return;
 
-        if (
-            name === "" ||
-            subject === "" ||
-            type === "" ||
-            link === "" ||
-            description === ""
-        ) {
+    }
 
-            alert(
-                "Please fill all fields."
-            );
+    let parsedURL;
 
-            return;
+    try {
 
+        parsedURL = new URL(link);
+
+        if (!["http:", "https:"].includes(parsedURL.protocol)) {
+            throw new Error("Invalid URL");
         }
 
+    } catch {
 
-        /* URL validation */
+        alert("Please enter a valid HTTP or HTTPS resource URL.");
 
-        try {
-
-            new URL(link);
-
-        } catch {
-
-            alert(
-                "Please enter a valid resource URL."
-            );
-
-            return;
-
-        }
-
-
-        /* New resource */
-
-        const newResource = {
-
-            id: Date.now(),
-
-            name: name,
-
-            subject: subject,
-
-            type: type,
-
-            link: link,
-
-            description: description,
-
-            favorite: false
-
-        };
-
-
-        resources.push(newResource);
-
-
-        saveResources();
-
-        refreshResources();
-
-
-        addResourceForm.reset();
-
-
-        alert(
-            "Resource added successfully!"
-        );
+        return;
 
     }
-);
 
+    const newResource = {
 
-/* =================================
-   SEARCH
-================================= */
+        id: String(Date.now()),
 
-searchForm.addEventListener(
-    "submit",
-    function(event) {
+        name: name,
 
-        event.preventDefault();
+        subject: subject,
 
-        refreshResources();
+        type: type,
 
-    }
-);
+        link: link,
 
+        description: description,
 
-searchInput.addEventListener(
-    "input",
-    function() {
+        favorite: false,
 
-        refreshResources();
+        createdAt: Date.now()
 
-    }
-);
+    };
 
+    const saved = await saveResource(newResource);
 
-/* =================================
-   SUBJECT FILTER
-================================= */
+    if (!saved) return;
 
-filterSubject.addEventListener(
-    "change",
-    function() {
+    resources.push(newResource);
 
-        currentFilter =
-            filterSubject.value;
+    refreshResources();
 
-        showingFavorites = false;
+    addResourceForm.reset();
 
-        refreshResources();
-
-    }
-);
-
-
-/* =================================
-   SHOW ALL
-================================= */
-
-showAllButton.addEventListener(
-    "click",
-    function() {
-
-        currentFilter = "all";
-
-        showingFavorites = false;
-
-        filterSubject.value = "all";
-
-        refreshResources();
-
-    }
-);
-
-
-/* =================================
-   SHOW FAVORITES
-================================= */
-
-showFavoritesButton.addEventListener(
-    "click",
-    function() {
-
-        currentFilter = "all";
-
-        showingFavorites = true;
-
-        filterSubject.value = "all";
-
-        refreshResources();
-
-    }
-);
-
-
-/* =================================
-   SUBJECT BUTTONS
-================================= */
-
-document.querySelectorAll(
-    ".subject-filter"
-).forEach(function(button) {
-
-    button.addEventListener(
-        "click",
-        function() {
-
-            currentFilter =
-                button.dataset.subject;
-
-            showingFavorites = false;
-
-            filterSubject.value =
-                currentFilter;
-
-
-            document
-                .querySelector("#resources")
-                .scrollIntoView({
-                    behavior: "smooth"
-                });
-
-
-            refreshResources();
-
-        }
-    );
+    alert("Resource added successfully!");
 
 });
 
 
-/* =================================
+/* =========================================
+   SEARCH
+========================================= */
+
+searchForm.addEventListener("submit", function (event) {
+
+    event.preventDefault();
+
+    refreshResources();
+
+});
+
+searchInput.addEventListener("input", function () {
+
+    refreshResources();
+
+});
+
+
+/* =========================================
+   SUBJECT FILTER
+========================================= */
+
+filterSubject.addEventListener("change", function () {
+
+    currentFilter = filterSubject.value;
+
+    showingFavorites = false;
+
+    refreshResources();
+
+});
+
+
+/* =========================================
+   SHOW ALL
+========================================= */
+
+showAllButton.addEventListener("click", function () {
+
+    currentFilter = "all";
+
+    showingFavorites = false;
+
+    filterSubject.value = "all";
+
+    refreshResources();
+
+});
+
+
+/* =========================================
+   SHOW FAVORITES
+========================================= */
+
+showFavoritesButton.addEventListener("click", function () {
+
+    currentFilter = "all";
+
+    showingFavorites = true;
+
+    filterSubject.value = "all";
+
+    refreshResources();
+
+});
+
+
+/* =========================================
+   SUBJECT BUTTONS
+========================================= */
+
+document.querySelectorAll(".subject-filter").forEach(function (button) {
+
+    button.addEventListener("click", function () {
+
+        currentFilter = button.dataset.subject;
+
+        showingFavorites = false;
+
+        filterSubject.value = currentFilter;
+
+        document.querySelector("#resources").scrollIntoView({
+            behavior: "smooth"
+        });
+
+        refreshResources();
+
+    });
+
+});
+
+
+/* =========================================
    RESOURCE ACTIONS
-================================= */
+========================================= */
 
-resourceContainer.addEventListener(
-    "click",
-    function(event) {
+resourceContainer.addEventListener("click", async function (event) {
 
+    const target = event.target;
 
-        /* =========================
-           FAVORITE
-        ========================= */
+    const id = target.dataset.id;
 
-        if (
-            event.target.classList.contains(
-                "favorite-btn"
-            )
-        ) {
+    if (!id) return;
 
-            const id =
-                Number(
-                    event.target.dataset.id
-                );
+    const resource = resources.find(function (item) {
+
+        return String(item.id) === String(id);
+
+    });
+
+    if (!resource) return;
 
 
-            const resource =
-                resources.find(function(item) {
+    /* FAVORITE */
 
-                    return item.id === id;
+    if (target.classList.contains("favorite-btn")) {
 
-                });
+        const updatedResource = {
+            ...resource,
+            favorite: !resource.favorite
+        };
 
+        const saved = await saveResource(updatedResource);
 
-            if (!resource) {
-                return;
-            }
+        if (!saved) return;
 
+        Object.assign(resource, updatedResource);
 
-            resource.favorite =
-                !resource.favorite;
-
-
-            saveResources();
-
-            refreshResources();
-
-        }
-
-
-        /* =========================
-           DELETE
-        ========================= */
-
-        if (
-            event.target.classList.contains(
-                "delete-btn"
-            )
-        ) {
-
-            const id =
-                Number(
-                    event.target.dataset.id
-                );
-
-
-            const confirmation =
-                confirm(
-                    "Are you sure you want to delete this resource?"
-                );
-
-
-            if (!confirmation) {
-                return;
-            }
-
-
-            resources =
-                resources.filter(
-                    function(resource) {
-
-                        return resource.id !== id;
-
-                    }
-                );
-
-
-            saveResources();
-
-            refreshResources();
-
-        }
-
-
-        /* =========================
-           EDIT
-        ========================= */
-
-        if (
-            event.target.classList.contains(
-                "edit-btn"
-            )
-        ) {
-
-            const id =
-                Number(
-                    event.target.dataset.id
-                );
-
-
-            openEditModal(id);
-
-        }
+        refreshResources();
 
     }
-);
 
 
-/* =================================
+    /* DELETE */
+
+    if (target.classList.contains("delete-btn")) {
+
+        const confirmation = confirm(
+            "Are you sure you want to delete this resource?"
+        );
+
+        if (!confirmation) return;
+
+        const deleted = await deleteOnlineResource(id);
+
+        if (!deleted) return;
+
+        resources = resources.filter(function (item) {
+
+            return String(item.id) !== String(id);
+
+        });
+
+        refreshResources();
+
+    }
+
+
+    /* EDIT */
+
+    if (target.classList.contains("edit-btn")) {
+
+        openEditModal(id);
+
+    }
+
+});
+
+
+/* =========================================
    CREATE EDIT MODAL
-================================= */
+========================================= */
 
 function createEditModal() {
 
-    const modal =
-        document.createElement("div");
+    const modal = document.createElement("div");
 
     modal.id = "editModal";
 
     modal.className = "edit-modal";
 
-
     modal.innerHTML = `
-
         <div class="edit-modal-content">
 
             <div class="edit-modal-header">
 
-                <h2>
-                    Edit Study Resource
-                </h2>
+                <h2>Edit Study Resource</h2>
 
-                <button
-                    id="closeEditModal"
-                    class="close-modal"
-                >
-                    &times;
-                </button>
+                <button type="button" id="closeEditModal"
+                    class="close-modal">&times;</button>
 
             </div>
 
-
             <form id="editResourceForm">
 
-
                 <div>
-
-                    <label for="editName">
-                        Resource Name
-                    </label>
-
-                    <input
-                        type="text"
-                        id="editName"
-                        required
-                    >
-
+                    <label for="editName">Resource Name</label>
+                    <input type="text" id="editName" required>
                 </div>
 
-
                 <div>
-
-                    <label for="editSubject">
-                        Subject
-                    </label>
-
-                    <select
-                        id="editSubject"
-                        required
-                    >
-
-                        <option value="">
-                            Select Subject
-                        </option>
-
-                        <option value="Programming">
-                            Programming
-                        </option>
-
-                        <option value="Data Structures">
-                            Data Structures
-                        </option>
-
-                        <option value="Database">
-                            Database
-                        </option>
-
-                        <option value="Web Development">
-                            Web Development
-                        </option>
-
+                    <label for="editSubject">Subject</label>
+                    <select id="editSubject" required>
+                        <option value="">Select Subject</option>
+                        <option value="Programming">Programming</option>
+                        <option value="Data Structures">Data Structures</option>
+                        <option value="Database">Database</option>
+                        <option value="Web Development">Web Development</option>
                     </select>
-
                 </div>
 
-
                 <div>
-
-                    <label for="editType">
-                        Resource Type
-                    </label>
-
-                    <select
-                        id="editType"
-                        required
-                    >
-
-                        <option value="">
-                            Select Type
-                        </option>
-
-                        <option value="Notes">
-                            Notes
-                        </option>
-
-                        <option value="Book">
-                            Book
-                        </option>
-
-                        <option value="Video">
-                            Video
-                        </option>
-
-                        <option value="Tutorial">
-                            Tutorial
-                        </option>
-
-                        <option value="Practice">
-                            Practice
-                        </option>
-
+                    <label for="editType">Resource Type</label>
+                    <select id="editType" required>
+                        <option value="">Select Type</option>
+                        <option value="Notes">Notes</option>
+                        <option value="Book">Book</option>
+                        <option value="Video">Video</option>
+                        <option value="Tutorial">Tutorial</option>
+                        <option value="Practice">Practice</option>
                     </select>
-
                 </div>
-
 
                 <div>
-
-                    <label for="editLink">
-                        Resource Link
-                    </label>
-
-                    <input
-                        type="url"
-                        id="editLink"
-                        required
-                    >
-
+                    <label for="editLink">Resource Link</label>
+                    <input type="url" id="editLink" required>
                 </div>
-
 
                 <div>
-
-                    <label for="editDescription">
-                        Description
-                    </label>
-
-                    <textarea
-                        id="editDescription"
-                        rows="5"
-                        required
-                    ></textarea>
-
+                    <label for="editDescription">Description</label>
+                    <textarea id="editDescription" rows="5" required></textarea>
                 </div>
-
 
                 <div class="edit-modal-actions">
 
-                    <button
-                        type="button"
-                        id="cancelEdit"
-                        class="cancel-edit"
-                    >
-                        Cancel
-                    </button>
+                    <button type="button" id="cancelEdit"
+                        class="cancel-edit">Cancel</button>
 
-
-                    <button
-                        type="submit"
-                        class="save-edit"
-                    >
-                        Save Changes
-                    </button>
+                    <button type="submit"
+                        class="save-edit">Save Changes</button>
 
                 </div>
 
-
             </form>
-
         </div>
-
     `;
-
 
     document.body.appendChild(modal);
 
+    document.querySelector("#closeEditModal")
+        .addEventListener("click", closeEditModal);
 
-    /* Close button */
+    document.querySelector("#cancelEdit")
+        .addEventListener("click", closeEditModal);
 
-    document
-        .querySelector("#closeEditModal")
-        .addEventListener(
-            "click",
-            closeEditModal
-        );
+    document.querySelector("#editResourceForm")
+        .addEventListener("submit", saveEditedResource);
 
+    modal.addEventListener("click", function (event) {
 
-    /* Cancel button */
+        if (event.target === modal) {
 
-    document
-        .querySelector("#cancelEdit")
-        .addEventListener(
-            "click",
-            closeEditModal
-        );
-
-
-    /* Save */
-
-    document
-        .querySelector("#editResourceForm")
-        .addEventListener(
-            "submit",
-            saveEditedResource
-        );
-
-
-    /* Click outside */
-
-    modal.addEventListener(
-        "click",
-        function(event) {
-
-            if (
-                event.target === modal
-            ) {
-
-                closeEditModal();
-
-            }
+            closeEditModal();
 
         }
-    );
+
+    });
 
 }
 
 
-/* =================================
+/* =========================================
    OPEN EDIT MODAL
-================================= */
+========================================= */
 
 function openEditModal(id) {
 
-    let modal =
-        document.querySelector("#editModal");
-
+    let modal = document.querySelector("#editModal");
 
     if (!modal) {
 
         createEditModal();
 
-        modal =
-            document.querySelector("#editModal");
+        modal = document.querySelector("#editModal");
 
     }
 
+    const resource = resources.find(function (item) {
 
-    const resource =
-        resources.find(function(item) {
+        return String(item.id) === String(id);
 
-            return item.id === id;
+    });
 
-        });
-
-
-    if (!resource) {
-        return;
-    }
-
-
-    /* Store ID */
+    if (!resource) return;
 
     modal.dataset.editingId = id;
 
+    document.querySelector("#editName").value = resource.name;
 
-    /* Fill existing data */
+    document.querySelector("#editSubject").value = resource.subject;
 
-    document.querySelector("#editName").value =
-        resource.name;
+    document.querySelector("#editType").value = resource.type;
 
+    document.querySelector("#editLink").value = resource.link;
 
-    document.querySelector("#editSubject").value =
-        resource.subject;
-
-
-    document.querySelector("#editType").value =
-        resource.type;
-
-
-    document.querySelector("#editLink").value =
-        resource.link;
-
-
-    document.querySelector("#editDescription").value =
-        resource.description;
-
-
-    /* Show modal */
+    document.querySelector("#editDescription").value = resource.description;
 
     modal.classList.add("show");
 
-
-    document.body.classList.add(
-        "modal-open"
-    );
+    document.body.classList.add("modal-open");
 
 }
 
 
-/* =================================
+/* =========================================
    SAVE EDITED RESOURCE
-================================= */
+========================================= */
 
-function saveEditedResource(event) {
+async function saveEditedResource(event) {
 
     event.preventDefault();
 
+    const modal = document.querySelector("#editModal");
 
-    const modal =
-        document.querySelector("#editModal");
+    const id = modal.dataset.editingId;
 
+    const resource = resources.find(function (item) {
 
-    const id =
-        Number(
-            modal.dataset.editingId
-        );
+        return String(item.id) === String(id);
 
+    });
 
-    const resource =
-        resources.find(function(item) {
+    if (!resource) return;
 
-            return item.id === id;
+    const newName = document.querySelector("#editName").value.trim();
 
-        });
+    const newSubject = document.querySelector("#editSubject").value;
 
+    const newType = document.querySelector("#editType").value;
 
-    if (!resource) {
-        return;
-    }
+    const newLink = document.querySelector("#editLink").value.trim();
 
+    const newDescription = document.querySelector("#editDescription").value.trim();
 
-    const newName =
-        document
-            .querySelector("#editName")
-            .value
-            .trim();
+    if (!newName || !newSubject || !newType || !newLink || !newDescription) {
 
-
-    const newSubject =
-        document
-            .querySelector("#editSubject")
-            .value;
-
-
-    const newType =
-        document
-            .querySelector("#editType")
-            .value;
-
-
-    const newLink =
-        document
-            .querySelector("#editLink")
-            .value
-            .trim();
-
-
-    const newDescription =
-        document
-            .querySelector("#editDescription")
-            .value
-            .trim();
-
-
-    /* Validation */
-
-    if (
-        newName === "" ||
-        newSubject === "" ||
-        newType === "" ||
-        newLink === "" ||
-        newDescription === ""
-    ) {
-
-        alert(
-            "Please fill all fields."
-        );
+        alert("Please fill all fields.");
 
         return;
 
     }
-
-
-    /* URL validation */
 
     try {
 
-        new URL(newLink);
+        const parsedURL = new URL(newLink);
+
+        if (!["http:", "https:"].includes(parsedURL.protocol)) {
+            throw new Error("Invalid URL");
+        }
 
     } catch {
 
-        alert(
-            "Please enter a valid resource URL."
-        );
+        alert("Please enter a valid HTTP or HTTPS resource URL.");
 
         return;
 
     }
 
+    const updatedResource = {
 
-    /* Update resource */
+        ...resource,
 
-    resource.name =
-        newName;
+        name: newName,
 
-    resource.subject =
-        newSubject;
+        subject: newSubject,
 
-    resource.type =
-        newType;
+        type: newType,
 
-    resource.link =
-        newLink;
+        link: newLink,
 
-    resource.description =
-        newDescription;
+        description: newDescription
 
+    };
 
-    /* Save */
+    const saved = await saveResource(updatedResource);
 
-    saveResources();
+    if (!saved) return;
 
-
-    /* Close */
+    Object.assign(resource, updatedResource);
 
     closeEditModal();
 
-
-    /* Refresh */
-
     refreshResources();
 
-
-    alert(
-        "Resource updated successfully!"
-    );
+    alert("Resource updated successfully!");
 
 }
 
 
-/* =================================
+/* =========================================
    CLOSE EDIT MODAL
-================================= */
+========================================= */
 
 function closeEditModal() {
 
-    const modal =
-        document.querySelector("#editModal");
+    const modal = document.querySelector("#editModal");
 
-
-    if (!modal) {
-        return;
-    }
-
+    if (!modal) return;
 
     modal.classList.remove("show");
 
-
-    document.body.classList.remove(
-        "modal-open"
-    );
+    document.body.classList.remove("modal-open");
 
 }
 
 
-/* =================================
-   INITIAL LOAD
-================================= */
+/* =========================================
+   INITIAL STATE
+========================================= */
 
+refreshResources();
 
-/* =================================
-   LOGIN / SIGNUP AND APP STARTUP
-================================= */
-const authScreen = document.querySelector("#authScreen");
-const authForm = document.querySelector("#authForm");
-const authEmail = document.querySelector("#authEmail");
-const authPassword = document.querySelector("#authPassword");
-const authConfirmPassword = document.querySelector("#authConfirmPassword");
-const confirmPasswordLabel = document.querySelector("#confirmPasswordLabel");
-const authSubmit = document.querySelector("#authSubmit");
-const authHeading = document.querySelector("#authHeading");
-const authSubheading = document.querySelector("#authSubheading");
-const authSwitch = document.querySelector("#authSwitch");
-const authSwitchText = document.querySelector("#authSwitchText");
-const authMessage = document.querySelector("#authMessage");
-const logoutButton = document.querySelector("#logoutButton");
-const signedInEmail = document.querySelector("#signedInEmail");
-let authMode = "login";
-
-function showAuthMessage(message, success = false) {
-    if (!authMessage) return;
-    authMessage.textContent = message || "";
-    authMessage.classList.toggle("success", Boolean(success));
-}
-
-function setAuthMode(mode) {
-    authMode = mode;
-    const signup = mode === "signup";
-    authHeading.textContent = signup ? "Create your account" : "Welcome back!";
-    authSubheading.textContent = signup
-        ? "Sign up with your email and create a password."
-        : "Log in to access your personal study resources.";
-    authSubmit.textContent = signup ? "Create Account" : "Login";
-    authSwitchText.textContent = signup ? "Already have an account?" : "New to StudyHub?";
-    authSwitch.textContent = signup ? "Login" : "Create account";
-    authConfirmPassword.hidden = !signup;
-    confirmPasswordLabel.hidden = !signup;
-    authConfirmPassword.required = signup;
-    authPassword.autocomplete = signup ? "new-password" : "current-password";
-    authPassword.value = "";
-    authConfirmPassword.value = "";
-    showAuthMessage("");
-}
-
-authSwitch.addEventListener("click", () => {
-    setAuthMode(authMode === "login" ? "signup" : "login");
-});
-
-authForm.addEventListener("submit", async event => {
-    event.preventDefault();
-    showAuthMessage("");
-
-    if (!supabaseClient) {
-        showAuthMessage("Setup required: add your Supabase Project URL and anon key in supabase-config.js, then run supabase-setup.sql.");
-        return;
-    }
-
-    const email = authEmail.value.trim();
-    const password = authPassword.value;
-
-    if (password.length < 6) {
-        showAuthMessage("Password must be at least 6 characters.");
-        return;
-    }
-
-    if (authMode === "signup" && password !== authConfirmPassword.value) {
-        showAuthMessage("Passwords do not match.");
-        return;
-    }
-
-    authSubmit.disabled = true;
-    authSubmit.textContent = authMode === "signup" ? "Creating account..." : "Logging in...";
-
-    try {
-        if (authMode === "signup") {
-            const { data, error } = await supabaseClient.auth.signUp({
-                email,
-                password,
-                options: { emailRedirectTo: window.location.origin }
-            });
-            if (error) throw error;
-            if (data.session) {
-                showAuthMessage("Account created successfully!", true);
-            } else {
-                showAuthMessage("Account created. Check your email to confirm, then log in.", true);
-                setAuthMode("login");
-                authEmail.value = email;
-            }
-        } else {
-            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) throw error;
-        }
-    } catch (error) {
-        showAuthMessage(error.message || "Could not sign in. Please try again.");
-    } finally {
-        authSubmit.disabled = false;
-        authSubmit.textContent = authMode === "signup" ? "Create Account" : "Login";
-    }
-});
-
-logoutButton.addEventListener("click", async () => {
-    if (!supabaseClient) return;
-    const { error } = await supabaseClient.auth.signOut();
-    if (error) alert(error.message);
-});
-
-async function openStudyHub(session) {
-    if (!session || !session.user) return;
-    currentUser = session.user;
-    document.body.classList.add("authenticated");
-    signedInEmail.textContent = currentUser.email || "Signed in";
-    if (appStarted) return;
-    appStarted = true;
-
-    try {
-        await loadOnlineResources();
-        refreshResources();
-    } catch (error) {
-        console.error("Could not load online resources:", error);
-        alert("Could not load your online resources. Please check that you ran supabase-setup.sql.");
-        resources = [];
-        refreshResources();
-    }
-}
-
-function showLoggedOutScreen() {
-    currentUser = null;
-    resources = [];
-    appStarted = false;
-    document.body.classList.remove("authenticated");
-    signedInEmail.textContent = "";
-    setAuthMode("login");
-}
-
-if (!supabaseClient) {
-    showAuthMessage("First-time setup: open README.txt and follow the Supabase setup steps.", false);
-} else {
-    supabaseClient.auth.getSession().then(({ data, error }) => {
-        if (error) console.error(error);
-        if (data && data.session) openStudyHub(data.session);
-        else showLoggedOutScreen();
-    });
-
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-        if (session) {
-            openStudyHub(session);
-        } else {
-            showLoggedOutScreen();
-        }
-    });
-}
+console.log("StudyHub Firebase application initialized successfully!");
